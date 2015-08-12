@@ -1,27 +1,30 @@
 package dog
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestNormal(t *testing.T) {
-	dog := NewDog()
-	dog.Debug("should not show this debug")
-	dog.Info("info")
-	dog.Warn("warn")
-	dog.Err("error")
+func broadcast(dog *Dog, msg string) {
+	dog.Debug(msg)
+	dog.Info(msg)
+	dog.Warn(msg)
+	dog.Err(msg)
+	dog.Fatal(msg)
 
-	dog = NewDog(ConfigLevel("debug"))
-	dog.Debug("debug")
-	dog.Info("info")
-	dog.Warn("warn")
-	dog.Err("error")
-
-	dog = NewDog(ConfigLevel("err"))
-	dog.Err("just this err")
+	fmt.Println()
 }
 
-func TestFatal(t *testing.T) {
-	dog := NewDog()
-	dog.Fatal("fatal")
+func TestNormal(t *testing.T) {
+	broadcast(NewDog(LevelDebug), "debug level")
+
+	broadcast(NewDog(LevelInfo), "info level")
+
+	broadcast(NewDog(LevelWarn), "warn level")
+
+	broadcast(NewDog(LevelErr), "err level")
+
+	broadcast(NewDog(LevelFatal), "fatal level")
+
+	NewDog(LevelDebug).Exit(0)
 }

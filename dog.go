@@ -1,6 +1,6 @@
 // Dog: Logging with style.
 //
-// Includes terminal color labels
+// Includes terminal color labels for convenience
 // An experiment with CLI emoji
 
 package dog
@@ -10,6 +10,16 @@ import (
 	"os"
 )
 
+// logging levels
+const (
+	LevelDebug = iota
+	LevelInfo  = iota
+	LevelWarn  = iota
+	LevelErr   = iota
+	LevelFatal = iota
+)
+
+// color reference for convenience
 const (
 	TR         = "\x1b[0m" // terminal reset
 	Bright     = "\x1b[1m"
@@ -38,41 +48,12 @@ const (
 	BgWhite   = "\x1b[47m"
 )
 
-func Talk(v ...interface{}) {
-	Log(FgCyan, "→ ", v...)
-}
-
-func Note(v ...interface{}) {
-	Log(FgGreen, "✏  ", v...)
-}
-
-func Warn(v ...interface{}) {
-	Log(FgYellow, "⚠  ", v...)
-}
-
-func Err(v ...interface{}) {
-	Log(FgRed, "✖  ", v...)
-}
-
-func Fatal(v ...interface{}) {
-	Log(FgRed+Blink, "☠  "+FgRed, v...)
-	os.Exit(1)
-}
-
-func Log(color string, icon string, v ...interface{}) {
-	v[0] = fmt.Sprintf("%v%v%v%v", color, icon, v[0], TR)
-
-	fmt.Println(v...)
-}
-
-// TODO write a simple but useful func to inspect an object
-func Inspect(v ...interface{}) {
-	//spew.Dump(v)
-	fmt.Println(v...)
-}
-
 type Dog struct {
 	Debug, Info, Warn, Err, Fatal func(v ...interface{}) interface{}
+}
+
+func (dog *Dog) Exit(code int) {
+	os.Exit(code)
 }
 
 // creates a logging function that is ignored
@@ -91,49 +72,50 @@ func log(color string, icon string) func(...interface{}) interface{} {
 		return v
 	}
 }
-func ConfigLevel(level string) func(Dog) Dog {
-	return func(dog Dog) Dog {
-		switch level {
-		case "debug":
-			dog.Debug = log(FgCyan, "→ ")
-		case "info":
-			// this is the default
-		case "warn":
-			dog.Info = ignore()
-		case "err":
-			dog.Info = ignore()
-			dog.Warn = ignore()
-		case "fatal":
-			dog.Info = ignore()
-			dog.Warn = ignore()
-			dog.Err = ignore()
+
+func NewDog(level int) *Dog {
+	switch level {
+	case LevelDebug:
+		return &Dog{
+			Debug: log(FgCyan, "→ "),
+			Info:  log(FgGreen, "✏  "),
+			Warn:  log(FgYellow, "⚠  "),
+			Err:   log(FgRed, "✖  "),
+			Fatal: log(FgRed+Bright, "☠  "),
 		}
-		return dog
+	case LevelInfo:
+		return &Dog{
+			Debug: ignore(),
+			Info:  log(FgGreen, "✏  "),
+			Warn:  log(FgYellow, "⚠  "),
+			Err:   log(FgRed, "✖  "),
+			Fatal: log(FgRed+Bright, "☠  "),
+		}
+	case LevelWarn:
+		return &Dog{
+			Debug: ignore(),
+			Info:  ignore(),
+			Warn:  log(FgYellow, "⚠  "),
+			Err:   log(FgRed, "✖  "),
+			Fatal: log(FgRed+Bright, "☠  "),
+		}
+	case LevelErr:
+		return &Dog{
+			Debug: ignore(),
+			Info:  ignore(),
+			Warn:  ignore(),
+			Err:   log(FgRed, "✖  "),
+			Fatal: log(FgRed+Bright, "☠  "),
+		}
+	case LevelFatal:
+		return &Dog{
+			Debug: ignore(),
+			Info:  ignore(),
+			Warn:  ignore(),
+			Err:   ignore(),
+			Fatal: log(FgRed+Bright, "☠  "),
+		}
 	}
-}
 
-func NewDog(config ...func(Dog) Dog) Dog {
-
-	// defaults
-	dog := Dog{
-		Debug: ignore(),
-		Info:  log(FgGreen, "✏  "),
-		Warn:  log(FgYellow, "⚠  "),
-		Err:   log(FgRed, "✖  "),
-		Fatal: func() func(...interface{}) interface{} {
-			log := log(FgRed+Bright, "☠  ")
-			return func(v ...interface{}) interface{} {
-				log(v...)
-				os.Exit(1)
-				return v // this is never executed, but required per the function signature
-			}
-		}(),
-	}
-
-	// configure
-	for _, c := range config {
-		dog = c(dog)
-	}
-
-	return dog
+	return &Dog{}
 }
