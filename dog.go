@@ -12,11 +12,11 @@ import (
 
 // logging levels
 const (
-	LevelDebug = iota
-	LevelInfo  = iota
-	LevelWarn  = iota
-	LevelErr   = iota
-	LevelFatal = iota
+	DEBUG = iota
+	INFO  = iota
+	WARN  = iota
+	ERR   = iota
+	FATAL = iota
 )
 
 // color reference for convenience
@@ -25,7 +25,7 @@ const (
 	Bright     = "\x1b[1m"
 	Dim        = "\x1b[2m"
 	Underscore = "\x1b[4m"
-	Blink      = "\x1b[5m"
+	Blink      = "\x1b[5m" // many terminals treat this like Bright
 	Reverse    = "\x1b[7m"
 	Hidden     = "\x1b[8m"
 
@@ -49,71 +49,78 @@ const (
 )
 
 type Dog struct {
-	Debug, Info, Warn, Err, Fatal func(v ...interface{}) interface{}
-}
+	Debug, Info, Warn, Err func(...interface{})
 
-func (dog *Dog) Exit(code int) {
-	os.Exit(code)
+	// Fatal returns a os.Exit so that an exit call can easily be chained
+	Fatal func(...interface{}) func(int)
 }
 
 // creates a logging function that is ignored
 // used for calls below the logging level
-func ignore() func(...interface{}) interface{} {
-	return func(v ...interface{}) interface{} {
-		return v
-	}
+func Ignore() func(...interface{}) {
+	return func(v ...interface{}) {}
 }
 
 // creates a logging function
-func log(color string, icon string) func(...interface{}) interface{} {
-	return func(v ...interface{}) interface{} {
-		v[0] = fmt.Sprintf("%v%v%v%v", color, icon, v[0], TR)
+// to facilitate functional programming, it would be nice to return the passed variables
+// however, this is nearly useless until generics are added to go
+func CreateLog(color string, prefix string) func(...interface{}) {
+	return func(v ...interface{}) {
+		v[0] = fmt.Sprintf("%v%v%v%v", color, prefix, v[0], TR)
 		fmt.Println(v...)
-		return v
+	}
+}
+
+// Fatal returns a os.Exit so that an exit call can easily be chained
+func CreateFatal(color string, prefix string) func(...interface{}) func(int) {
+	return func(v ...interface{}) func(int) {
+		v[0] = fmt.Sprintf("%v%v%v%v", color, prefix, v[0], TR)
+		fmt.Println(v...)
+		return os.Exit
 	}
 }
 
 func NewDog(level int) *Dog {
 	switch level {
-	case LevelDebug:
+	case DEBUG:
 		return &Dog{
-			Debug: log(FgCyan, "→ "),
-			Info:  log(FgGreen, "✏  "),
-			Warn:  log(FgYellow, "⚠  "),
-			Err:   log(FgRed, "✖  "),
-			Fatal: log(FgRed+Bright, "☠  "),
+			Debug: CreateLog(FgCyan, "→ "),
+			Info:  CreateLog(FgGreen, "✏  "),
+			Warn:  CreateLog(FgYellow, "⚠  "),
+			Err:   CreateLog(FgRed, "✖  "),
+			Fatal: CreateFatal(FgRed+Bright, "☠  "),
 		}
-	case LevelInfo:
+	case INFO:
 		return &Dog{
-			Debug: ignore(),
-			Info:  log(FgGreen, "✏  "),
-			Warn:  log(FgYellow, "⚠  "),
-			Err:   log(FgRed, "✖  "),
-			Fatal: log(FgRed+Bright, "☠  "),
+			Debug: Ignore(),
+			Info:  CreateLog(FgGreen, "✏  "),
+			Warn:  CreateLog(FgYellow, "⚠  "),
+			Err:   CreateLog(FgRed, "✖  "),
+			Fatal: CreateFatal(FgRed+Bright, "☠  "),
 		}
-	case LevelWarn:
+	case WARN:
 		return &Dog{
-			Debug: ignore(),
-			Info:  ignore(),
-			Warn:  log(FgYellow, "⚠  "),
-			Err:   log(FgRed, "✖  "),
-			Fatal: log(FgRed+Bright, "☠  "),
+			Debug: Ignore(),
+			Info:  Ignore(),
+			Warn:  CreateLog(FgYellow, "⚠  "),
+			Err:   CreateLog(FgRed, "✖  "),
+			Fatal: CreateFatal(FgRed+Bright, "☠  "),
 		}
-	case LevelErr:
+	case ERR:
 		return &Dog{
-			Debug: ignore(),
-			Info:  ignore(),
-			Warn:  ignore(),
-			Err:   log(FgRed, "✖  "),
-			Fatal: log(FgRed+Bright, "☠  "),
+			Debug: Ignore(),
+			Info:  Ignore(),
+			Warn:  Ignore(),
+			Err:   CreateLog(FgRed, "✖  "),
+			Fatal: CreateFatal(FgRed+Bright, "☠  "),
 		}
-	case LevelFatal:
+	case FATAL:
 		return &Dog{
-			Debug: ignore(),
-			Info:  ignore(),
-			Warn:  ignore(),
-			Err:   ignore(),
-			Fatal: log(FgRed+Bright, "☠  "),
+			Debug: Ignore(),
+			Info:  Ignore(),
+			Warn:  Ignore(),
+			Err:   Ignore(),
+			Fatal: CreateFatal(FgRed+Bright, "☠  "),
 		}
 	}
 
