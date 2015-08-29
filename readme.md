@@ -39,7 +39,8 @@ func main() {
 ```
 
 <img width="517" alt="dog_simple" src="https://cloud.githubusercontent.com/assets/611339/9560595/a9af8b2e-4dd1-11e5-8d41-17e51a3b9d8f.png">
-Note that the final line is `go run` indicating a non 0 exit status and not something dog is printing.
+
+Note that the final line in the screenshot is `go run` printing a non 0 exit status and not something dog is printing.
 
 ### Logging Levels and Customization
 Five logging levels are defined: debug, info, warn, err, fatal. A log level is only displayed if it is at or above the level given when creating the dog object. For example, in response to a quiet flag you could only print err and fatal messages:
