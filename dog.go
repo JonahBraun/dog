@@ -1,8 +1,7 @@
-// Dog: Logging with style.
+// Console logging with style (prefixed & colored).
 //
-// Includes terminal color labels for convenience
-// An experiment with CLI emoji
-
+// Includes terminal color labels for convenience.
+// An experiment with CLI emoji.
 package dog
 
 import (
@@ -19,7 +18,7 @@ const (
 	FATAL = iota
 )
 
-// color reference for convenience
+// color references for convenience, use these as parameters for CreateLog and CreateFatal
 const (
 	TR         = "\x1b[0m" // terminal reset
 	Bright     = "\x1b[1m"
@@ -48,22 +47,25 @@ const (
 	BgWhite   = "\x1b[47m"
 )
 
+// Dog functions are created at runtime.
+// Fatal returns os.Exit(int) to facilitate chaining an exit call.
 type Dog struct {
 	Debug, Info, Warn, Err func(...interface{})
 
-	// Fatal returns a os.Exit so that an exit call can easily be chained
 	Fatal func(...interface{}) func(int)
 }
 
-// creates a logging function that is ignored
-// used for calls below the logging level
+// Creates a logging function that is ignored.
+// Used for calls below the configured logging level.
 func Ignore() func(...interface{}) {
 	return func(v ...interface{}) {}
 }
 
-// creates a logging function
-// to facilitate functional programming, it would be nice to return the passed variables
-// however, this is nearly useless until generics are added to go
+// Creates a logging function. Color can be from the color constants. Prefix can be an
+// appropriate icon followed by a space. However, these two paramters are merely concatenated
+// in front of the log message, so they can be anything.
+// To facilitate functional programming, it would be nice to return the passed variables
+// however, this is nearly useless until generics are added to go.
 func CreateLog(color string, prefix string) func(...interface{}) {
 	return func(v ...interface{}) {
 		v[0] = fmt.Sprintf("%v%v%v%v", color, prefix, v[0], TR)
@@ -71,7 +73,7 @@ func CreateLog(color string, prefix string) func(...interface{}) {
 	}
 }
 
-// Fatal returns a os.Exit so that an exit call can easily be chained
+// Like CreateLog but returns os.Exit so that an exit call can easily be chained
 func CreateFatal(color string, prefix string) func(...interface{}) func(int) {
 	return func(v ...interface{}) func(int) {
 		v[0] = fmt.Sprintf("%v%v%v%v", color, prefix, v[0], TR)
@@ -80,6 +82,7 @@ func CreateFatal(color string, prefix string) func(...interface{}) func(int) {
 	}
 }
 
+// Creates a *Dog configured to print at and above the passed logging level.
 func NewDog(level int) *Dog {
 	switch level {
 	case DEBUG:
