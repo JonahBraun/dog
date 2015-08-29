@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// logging levels
+// Logging levels, pass one to CreateDog.
 const (
 	DEBUG = iota
 	INFO  = iota
@@ -18,7 +18,7 @@ const (
 	FATAL = iota
 )
 
-// color references for convenience, use these as parameters for CreateLog and CreateFatal
+// ANSI color codes, use these as parameters for CreateLog and CreateFatal.
 const (
 	TR         = "\x1b[0m" // terminal reset
 	Bright     = "\x1b[1m"
@@ -47,7 +47,7 @@ const (
 	BgWhite   = "\x1b[47m"
 )
 
-// Dog functions are created at runtime.
+// Dog functions are created at runtime with NewDog. Use CreateLog and CreateFatal customize.
 // Fatal returns os.Exit(int) to facilitate chaining an exit call.
 type Dog struct {
 	Debug, Info, Warn, Err func(...interface{})
@@ -62,8 +62,9 @@ func Ignore() func(...interface{}) {
 }
 
 // Creates a logging function. Color can be from the color constants. Prefix can be an
-// appropriate icon followed by a space. However, these two paramters are merely concatenated
-// in front of the log message, so they can be anything.
+// appropriate icon followed by a space, or two spaces for doublewide unicode symbols.
+// The two parameters are merely concatanted in front of the log message, so they can be any string.
+//
 // To facilitate functional programming, it would be nice to return the passed variables
 // however, this is nearly useless until generics are added to go.
 func CreateLog(color string, prefix string) func(...interface{}) {
