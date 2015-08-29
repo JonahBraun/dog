@@ -1,4 +1,5 @@
 ## Dog, console logging in go with style.
+Package documentation: https://godoc.org/github.com/JonahBraun/dog
 
 ### Basic Usage
 Import this library and create the log object, configured with the minimum log level to display:
