@@ -1,7 +1,7 @@
 ## Dog, console logging in go with style.
 
 ### Basic Usage
-Import this library and create the log object:
+Import this library and create the log object, configured with the minimum log level to display:
 ```go
 import "github.com/JonahBraun/dog"
 var log = dog.NewDog(dog.DEBUG)
@@ -9,7 +9,7 @@ var log = dog.NewDog(dog.DEBUG)
 
 Then somewhere in a function:
 ```go
-log.Warn("some warning", someVar)
+log.Warn("some warning", ...optionalVarsToDisplay)
 ```
 
 ### Full Example
@@ -38,9 +38,11 @@ func main() {
 }
 ```
 
+The above code will show:
+
 <img width="517" alt="dog_simple" src="https://cloud.githubusercontent.com/assets/611339/9560595/a9af8b2e-4dd1-11e5-8d41-17e51a3b9d8f.png">
 
-Note that the final line in the screenshot is `go run` printing a non 0 exit status and not something dog is printing.
+Note the final line in the screenshot is `go run` printing a non 0 exit status and not something Dog is printing.
 
 ### Logging Levels and Customization
 Five logging levels are defined: debug, info, warn, err, fatal. A log level is only displayed if it is at or above the level given when creating the dog object. For example, in response to a quiet flag you could only print err and fatal messages:
@@ -65,4 +67,4 @@ Color ANSI codes are defined to make this convenient. Because CreateLog just con
 <img width="464" alt="dog_custom" src="https://cloud.githubusercontent.com/assets/611339/9560594/a99a5466-4dd1-11e5-953d-dc273dd9e23a.png">
 
 ### Why?
-While many applications don't require five levels of color differentiated and prefixed console logging, some however do. This library was originally written for [Wago, a file watcher / build tool](https://github.com/JonahBraun/wago), which required log messages to be easily distinguishable from the application output being monitored.
+This library was originally written for [Wago, a file watcher / build tool](https://github.com/JonahBraun/wago), which requires log messages to be easily distinguishable from the application output being monitored.
