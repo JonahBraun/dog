@@ -15,5 +15,5 @@ func main() {
 	log.Warn("Even more minimal")
 
 	log.Warn = dog.CreateLog(dog.FgYellow+dog.Reverse, "🐺  ")
-	log.Warn("Dawg, this custom fatal log format is rockin the CLI!!1")
+	log.Warn("Dawg, this custom log format is rockin the CLI!!1")
 }

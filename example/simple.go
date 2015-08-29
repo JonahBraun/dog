@@ -6,7 +6,7 @@ var log = dog.NewDog(dog.DEBUG)
 
 func main() {
 	number := 8
-	msg := "error message form some library"
+	msg := "example error message from some library"
 
 	// any variables can be appended to any of the log calls
 	log.Debug("Might be needed for advanced debugging")
