@@ -1,7 +1,7 @@
 // Console logging with style (prefixed & colored).
 //
 // Includes terminal color labels for convenience.
-// An experiment with CLI emoji.
+// An experiment with unicode symbols and functional programming.
 package dog
 
 import (
