@@ -12,10 +12,10 @@ import (
 // Logging levels, pass one to CreateDog.
 const (
 	DEBUG = iota
-	INFO  = iota
-	WARN  = iota
-	ERR   = iota
-	FATAL = iota
+	INFO
+	WARN
+	ERR
+	FATAL
 )
 
 // ANSI color codes, use these as parameters for CreateLog and CreateFatal.
